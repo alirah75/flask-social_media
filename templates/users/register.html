@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %} user register {% endblock %}
+
+{% block page_content %}
+<h3>User Register</h3>
+<form action="{{ url_for('users.register') }}" method="post">
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    {{ form.hidden_tag() }}
+    Username: {{ form.username }}<br/>
+    Password:{{ form.password }}<br/>
+    Confirm Password:{{ form.confirm_password }}<br/>
+    FirstName:{{ form.first_name }}<br/>
+    LastName:{{ form.last_name }}<br/>
+    <input type="submit" value="Register">
+</form>
+{% endblock %}
