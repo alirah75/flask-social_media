@@ -5,7 +5,7 @@ from .models import Post, Comment
 from .forms import CreatePostForm, CreateCommentForm
 
 from ..app import db
-from ..mod_users import User
+from ..users import User
 
 
 @posts.route('/', methods=['GET', 'POST'])
@@ -39,7 +39,7 @@ def index():
                  'timestamp': comment.timestamp} for comment in comments]
         }
         result.append(post_data)
-    return render_template('posts/index.html', posts=result, form=form)
+    return render_template('posts/index.html', posts=result, form=form, current_user=True)
 
 
 @posts.route('/new/', methods=['GET', 'POST'])
@@ -74,7 +74,11 @@ def create_post():
 
 @posts.route('/posts_user/<int:id>', methods=['GET'])
 def posts_user(id):
-    posts = Post.query.all()
+    if not session.get('user_id'):
+        flash('you are not login.')
+        return render_template('users/index.html')
+
+    posts = Post.query.filter(Post.user_id == id).all()
     result = []
     for post in posts:
         comments = Comment.query.filter_by(post_id=post.id).all()
@@ -90,7 +94,7 @@ def posts_user(id):
                  'timestamp': comment.timestamp} for comment in comments]
         }
         result.append(post_data)
-    return render_template('posts/post_user.html', posts=result)
+    return render_template('posts/post_user.html', posts=result, current_user=True)
 
 
 # @posts.route('/add_comment/', methods=['GET', 'POST'])

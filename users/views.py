@@ -11,7 +11,7 @@ def index():
     if not session.get('user_id'):
         flash('you are not login.')
         return redirect(url_for('users.login'))
-    return render_template('users/index.html')
+    return render_template('users/index.html', current_user=True)
 
 
 @users.route('/register/', methods=['GET', 'POST'])
