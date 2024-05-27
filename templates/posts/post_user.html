@@ -4,16 +4,31 @@
 
 
 {% block page_content %}
-<vr>************************************************************</vr>
+<hr>
 <h1>User Posts</h1><br/>
-<vr>=====================================</vr>
+<hr>
 <div>
     {% for post in posts %}
         <h3>{{ post.title }}</h3>
         <h5>{{ post.username }}</h5><br/>
         <p>{{ post.content}}</p><br/><br/>
         <p>{{ post.timestamp}}</p><br/>
-        <vr>---------------------------</vr>
+        <div class="comments">
+            <h3>Comments:</h3>
+            {% if post.comments %}
+                <ul>
+                    {% for comment in post.comments %}
+                        <li>
+                            <p>{{ comment.content }}</p>
+                            <p><strong>Commented by:</strong> <a href="{{ url_for('posts.posts_user', id=post.user_id) }}">{{ comment.username }}</a> on {{ comment.timestamp }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No comments yet.</p>
+            {% endif %}
+        </div>
+        <hr>
     {% endfor %}
 </div>
 {% endblock %}

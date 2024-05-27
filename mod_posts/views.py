@@ -38,7 +38,6 @@ def index():
                 {'content': comment.content, 'username': User.query.filter(User.id == comment.user_id).first().username,
                  'timestamp': comment.timestamp} for comment in comments]
         }
-        # User.query.filter(User.id == comment.user_id).first().username
         result.append(post_data)
     return render_template('posts/index.html', posts=result, form=form)
 
@@ -73,45 +72,58 @@ def create_post():
     return render_template('posts/create_post.html', form=form)
 
 
-@posts.route('/user_posts/<int:id>', methods=['GET'])
-def user_posts(id):
-    posts = Post.query.filter(Post.user_id == id).all()
-    result = [{'title': post.title, 'content': post.content, 'timestamp': post.timestamp,
-               'username': User.query.filter(post.user_id == id).first().username} for post in posts]
+@posts.route('/posts_user/<int:id>', methods=['GET'])
+def posts_user(id):
+    posts = Post.query.all()
+    result = []
+    for post in posts:
+        comments = Comment.query.filter_by(post_id=post.id).all()
+        post_data = {
+            'user_id': post.user_id,
+            'id': post.id,
+            'username': User.query.filter(User.id == post.user_id).first().username,
+            'content': post.content,
+            'title': post.title,
+            'timestamp': post.timestamp,
+            'comments': [
+                {'content': comment.content, 'username': User.query.filter(User.id == comment.user_id).first().username,
+                 'timestamp': comment.timestamp} for comment in comments]
+        }
+        result.append(post_data)
     return render_template('posts/post_user.html', posts=result)
 
 
-@posts.route('/add_comment/', methods=['GET', 'POST'])
-def add_comment():
-    posts = Post.query.all()
-    result = [{'user_id': post.user_id, 'content': post.content, 'title': post.title, 'timestamp': post.timestamp,
-               'username': User.query.filter(post.user_id == User.id).first().username} for post in posts]
-    print(posts)
-    form = CreateCommentForm(request.form)
-    if request.method == 'POST':
-        if not form.validate_on_submit():
-            return render_template('posts/create_post.html', form=form)
-
-        if not session.get('user_id') and session.get('post_id'):
-            flash('you are not login.')
-            return render_template('posts/create_post.html', form=form)
-
-        try:
-            new_comment = Comment()
-            new_comment.comment = form.comment.data
-            new_comment.user_id = session.get('user_id')
-            new_comment.post_id = session.get('post_id')
-            # new_comment.parent_id = session.get('parent_id')
-            db.session.add(new_comment)
-            db.session.commit()
-            flash("Your comment has been added to the post", "success")
-            return redirect(url_for('posts.user_posts', id=session.get('post_id')))
-        except:
-            db.session.rollback()
-            flash('Comment not submit')
-            return render_template('posts/create_post.html', form=posts)
-
-    return render_template('posts/index.html', form=result)
+# @posts.route('/add_comment/', methods=['GET', 'POST'])
+# def add_comment():
+#     posts = Post.query.all()
+#     result = [{'user_id': post.user_id, 'content': post.content, 'title': post.title, 'timestamp': post.timestamp,
+#                'username': User.query.filter(post.user_id == User.id).first().username} for post in posts]
+#     print(posts)
+#     form = CreateCommentForm(request.form)
+#     if request.method == 'POST':
+#         if not form.validate_on_submit():
+#             return render_template('posts/create_post.html', form=form)
+#
+#         if not session.get('user_id') and session.get('post_id'):
+#             flash('you are not login.')
+#             return render_template('posts/create_post.html', form=form)
+#
+#         try:
+#             new_comment = Comment()
+#             new_comment.comment = form.comment.data
+#             new_comment.user_id = session.get('user_id')
+#             new_comment.post_id = session.get('post_id')
+#             # new_comment.parent_id = session.get('parent_id')
+#             db.session.add(new_comment)
+#             db.session.commit()
+#             flash("Your comment has been added to the post", "success")
+#             return redirect(url_for('posts.user_posts', id=session.get('post_id')))
+#         except:
+#             db.session.rollback()
+#             flash('Comment not submit')
+#             return render_template('posts/create_post.html', form=posts)
+#
+#     return render_template('posts/index.html', form=result)
 
 
 @posts.route('/post_comments/<int:post_id>', methods=['GET'])
