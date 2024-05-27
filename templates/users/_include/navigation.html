@@ -1,7 +1,12 @@
 <div>
     <ul>
         <li><a href="{{ url_for('home') }}">Home</a></li>
-        <li><a href="{{ url_for('users.login') }}">Login</a></li>
-        <li><a href="{{ url_for('users.logout') }}">Logout</a></li>
+
+        {% if current_user %}
+            <li><a href="{{ url_for('posts.index') }}">Posts</a></li>
+            <li><a href="{{ url_for('users.logout') }}">Logout</a></li>
+        {% else %}
+            <li><a href="{{ url_for('users.login') }}">Login</a></li>
+        {% endif %}
     </ul>
 </div>

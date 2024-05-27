@@ -11,8 +11,8 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 from .views import home
-from .mod_users import users
-from .mod_posts import posts
+from .users import users
+from .posts import posts
 
 app.register_blueprint(users)
 app.register_blueprint(posts)
