@@ -11,3 +11,7 @@ class CreatePostForm(FlaskForm):
 
 class CreateCommentForm(FlaskForm):
     comment = TextAreaField('Comment', validators=[DataRequired()])
+
+
+class CommentReplyForm(FlaskForm):
+    reply = TextAreaField('Reply', validators=[DataRequired()])

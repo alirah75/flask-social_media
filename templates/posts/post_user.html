@@ -2,7 +2,6 @@
 
 {% block title %}User Posts{% endblock %}
 
-
 {% block page_content %}
 <hr>
 <h1>User Posts</h1><br/>
@@ -11,8 +10,8 @@
     {% for post in posts %}
         <h3>{{ post.title }}</h3>
         <h5>{{ post.username }}</h5><br/>
-        <p>{{ post.content}}</p><br/><br/>
-        <p>{{ post.timestamp}}</p><br/>
+        <p>{{ post.content }}</p><br/><br/>
+        <p>{{ post.timestamp }}</p><br/>
         <div class="comments">
             <h3>Comments:</h3>
             {% if post.comments %}
@@ -20,13 +19,63 @@
                     {% for comment in post.comments %}
                         <li>
                             <p>{{ comment.content }}</p>
-                            <p><strong>Commented by:</strong> <a href="{{ url_for('posts.posts_user', id=post.user_id) }}">{{ comment.username }}</a> on {{ comment.timestamp }}</p>
+                            <p><strong>Commented by:</strong> <a href="{{ url_for('posts.posts_user', post_id=post.user_id) }}">{{ comment.username }}</a> on {{ comment.timestamp }}</p>
+
+                            <form method="POST" action="{{ url_for('posts.posts_user', post_id=post.id) }}">
+                                {{ reply_form.hidden_tag() }}
+                                {{ reply_form.reply.label }}
+                                {{ reply_form.reply }}
+                                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                <input type="submit" value="Submit">
+                            </form>
+
+                            <ul>
+                                {% for reply in comment.replies %}
+                                    <li>
+                                        <p>{{ reply.content }}</p>
+                                        <p><strong>Replied by:</strong> <a href="{{ url_for('posts.posts_user', post_id=reply.user_id) }}">{{ reply.username }}</a> on {{ reply.timestamp }}</p>
+
+                                        <form method="POST" action="{{ url_for('posts.posts_user', post_id=post.id) }}">
+                                            {{ reply_form.hidden_tag() }}
+                                            {{ reply_form.reply.label }}
+                                            {{ reply_form.reply }}
+                                            <input type="hidden" name="parent_id" value="{{ reply.id }}">
+                                            <input type="submit" value="Submit">
+                                        </form>
+
+                                        <ul>
+                                            {% for subreply in reply.replies %}
+                                                <li>
+                                                    <p>{{ subreply.content }}</p>
+                                                    <p><strong>Replied by:</strong> <a href="{{ url_for('posts.posts_user', post_id=subreply.user_id) }}">{{ subreply.username }}</a> on {{ subreply.timestamp }}</p>
+
+                                                    <form method="POST" action="{{ url_for('posts.posts_user', post_id=post.id) }}">
+                                                        {{ reply_form.hidden_tag() }}
+                                                        {{ reply_form.reply.label }}
+                                                        {{ reply_form.reply }}
+                                                        <input type="hidden" name="parent_id" value="{{ subreply.id }}">
+                                                        <input type="submit" value="Submit">
+                                                    </form>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endfor %}
+                            </ul>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
                 <p>No comments yet.</p>
             {% endif %}
+
+            <form method="POST" action="{{ url_for('posts.posts_user', post_id=post.id) }}">
+                {{ comment_form.hidden_tag() }}
+                {{ comment_form.comment.label }}
+                {{ comment_form.comment }}
+                <input type="hidden" name="parent_id" value="">
+                <input type="submit" value="Submit">
+            </form>
         </div>
         <hr>
     {% endfor %}
